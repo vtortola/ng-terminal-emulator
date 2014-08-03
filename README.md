@@ -1,4 +1,4 @@
 ng-terminal-emulator
 ====================
 
-AngularJS Terminal Emulator
+AngularJS Terminal Emulator, visit : http://vtortola.github.io/ng-terminal-emulator/
