@@ -94,8 +94,8 @@
 }])
 
 .config(['terminalConfigurationProvider', function (terminalConfigurationProvider) {
-    terminalConfigurationProvider.setTypeSoundUrl('/example/content/type.wav');
-    terminalConfigurationProvider.setStartSoundUrl('/example/content/start.wav');
+    terminalConfigurationProvider.setTypeSoundUrl('example/content/type.wav');
+    terminalConfigurationProvider.setStartSoundUrl('example/content/start.wav');
 }])
 
 ;
