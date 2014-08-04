@@ -72,6 +72,8 @@
 
 			if (parts[0] == "")
 				parts = parts.slice(1);
+			if (!parts.length)
+				return config.directorySeparator;
 
 			return me.combine.apply(me,parts);
 		};
@@ -115,13 +117,23 @@
 				return last;
 		};
 
+		var fileNameValidator = /^[\w_.\-]+$/;
+		me.isFileNameValid = function (name) {
+			return !!name && !!name.match(fileNameValidator);
+		};
+
+		var dirNameValidator = /^[\w_\-]+$/;
+		me.isDirNameValid = function (name) {
+			return !!name && !!name.match(dirNameValidator);
+		};
+
 		return me;
 	};
 	return pathTools();
 }])
 
 .service('fileSystem', ['fileSystemConfiguration', 'pathTools', 'storage', function (config, pathTools, storage) {
-	var fs = function (config) {
+	var fs = function () {
 		var me = {};
 		var _currentPath = config.directorySeparator;
 
@@ -152,25 +164,36 @@
 				if (pathTools.isFileOfPath(_currentPath, key)) {
 					result.files.push(pathTools.getPathItemName(key));
 				}
-				else if (path.isDirectoryOfPath(_currentPath, key)) {
+				else if (pathTools.isDirectoryOfPath(_currentPath, key)) {
 					result.directories.push(pathTools.getPathItemName(key));
 				}
 			}
+
+			return result;
+		};
+
+		me.existsDir = function (path, failIfNotExist) {
+			var dirkey = pathTools.combine(_currentPath, path, "_dir");
+			var exists = storage.getItem(dirkey);
+			if (!exists && failIfNotExist)
+				throw new Error("The directory does not exist.");
+			return exists;
 		};
 
 		me.createDir = function (path) {
-			var dirkey = pathTools.combine(_currentPath, path, "_dir");
-			if (storage.getItem(dirkey))
-				throw new Error("The directory '" + path + "' already exists.");
-			else
-				storage.setItem(dirkey)
+			if (!pathTools.isDirNameValid(pathTools.getPathItemName(path)))
+				throw new Error("Invalid directory name");
+			if (me.existsDir(path))
+				throw new Error("The directory already exists.");
+			else {
+				var dirkey = pathTools.combine(_currentPath, path, "_dir");
+				storage.setItem(dirkey,"_dir");
+			}
 		};
 
 		me.removeDir = function (path) {
-			var dirkey = pathTools.combine(_currentPath, path, "_dir");
-			if (!storage.getItem(dirkey))
-				throw new Error("The directory '" + path + "' does not exist.");
-			else {
+
+			if (me.existsDir(path,true)){
 				path = pathTools.combine(_currentPath, path);
 				var keys = [];
 				for (var key in storage) {
@@ -188,20 +211,52 @@
 			}
 		};
 
-		me.writeFile = function (path, content) {
+		me.writeFile = function (name, content) {
+			if (!pathTools.isFileNameValid(name))
+				throw new Error("Invalid file name");
+			if (!content)
+				throw new Error("No content has been passed");
 
+			var filekey = pathTools.combine(_currentPath, name);
+			storage.setItem(filekey, content);
 		};
 
-		me.appendToFile = function (path, content) {
+		me.appendToFile = function (name, content) {
+			if (!pathTools.isFileNameValid(name))
+				throw new Error("Invalid file name");
+			if (!content)
+				throw new Error("No content has been passed");
 
+			var filekey = pathTools.combine(_currentPath, name);
+			var prevcontent = storage.getItem(filekey);
+			storage.setItem(filekey, prevcontent + content);
 		};
 
-		me.deleteFile = function (file) {
+		me.deleteFile = function (name) {
+			if (!pathTools.isFileNameValid(name))
+				throw new Error("Invalid file name");
+			var filekey = pathTools.combine(_currentPath, name);
+			if (!storage.getItem(filekey)) {
+				throw new Error("The file does not exist");
+			}
+			storage.removeItem(filekey);
+		};
 
+		me.readFile = function (name) {
+			if (!pathTools.isFileNameValid(name))
+				throw new Error("Invalid file name");
+
+			var filekey = pathTools.combine(_currentPath, name);
+			var content = storage.getItem(filekey);
+			if (!content) {
+				throw new Error("The file does not exist");
+			}
+			return content;
 		};
 
 		return me;
 	};
+	return fs();
 }])
 
 .config(['commandBrokerProvider', function (commandBrokerProvider) {
