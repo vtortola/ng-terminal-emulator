@@ -34,6 +34,8 @@
             scope.$on('terminal-input', function (e) {
                 expect(scope.commandLine).toEqual("");
                 expect(scope.results.length).toEqual(1);
+                expect(scope.results[0].text.length).toEqual(1);
+                expect(scope.results[0].text[0]).toEqual(scope.prompt.text + "RRR");
                 done();
             });
 
@@ -84,16 +86,16 @@
 
                 scope.$broadcast('terminal-command', {
                     command: 'change-prompt',
-                    prompt: 'testPrompt'
+                    prompt: { user: 'testPrompt' }
                 });
 
-                expect(scope.prompt).toEqual("testPrompt");
+                expect(scope.prompt.text).toEqual("testPrompt@\\:>");
 
                 scope.$emit('terminal-command', {
                     command: 'reset-prompt'
                 });
 
-                expect(scope.prompt).toEqual(":\\>");
+                expect(scope.prompt.text).toEqual("anon@\\:>");
             });
 
             it('Can clear results', function () {
@@ -113,5 +115,64 @@
             });
         });
         
+    });
+
+    describe('Service: prompt', function () {
+        var prompt = null;
+        beforeEach(inject(['prompt', function (p) {
+            prompt = p;
+        }]));
+
+        it('Default prompt', function () {
+            expect(prompt.text).toEqual("anon@\\:>");
+        });
+
+        it('Can set properties on prompt', function () {
+            prompt.path('\\user\\whatever');
+            prompt.user('vtortola');
+            
+            expect(prompt.path()).toEqual("\\user\\whatever");
+            expect(prompt.user()).toEqual("vtortola");
+            expect(prompt.text).toEqual("vtortola@\\user\\whatever:>");
+        });
+
+        it('Can reset all properties on prompt', function () {
+            prompt.path('\\user\\whatever');
+            prompt.user('vtortola');
+
+            expect(prompt.path()).toEqual("\\user\\whatever");
+            expect(prompt.user()).toEqual("vtortola");
+            expect(prompt.text).toEqual("vtortola@\\user\\whatever:>");
+
+            prompt.reset();
+
+            expect(prompt.text).toEqual("anon@\\:>");
+        });
+
+        it('Can reset user property on prompt', function () {
+            prompt.path('\\user\\whatever');
+            prompt.user('vtortola');
+
+            expect(prompt.path()).toEqual("\\user\\whatever");
+            expect(prompt.user()).toEqual("vtortola");
+            expect(prompt.text).toEqual("vtortola@\\user\\whatever:>");
+
+            prompt.resetUser();
+
+            expect(prompt.text).toEqual("anon@\\user\\whatever:>");
+        });
+
+        it('Can reset path property on prompt', function () {
+            prompt.path('\\user\\whatever');
+            prompt.user('vtortola');
+
+            expect(prompt.path()).toEqual("\\user\\whatever");
+            expect(prompt.user()).toEqual("vtortola");
+            expect(prompt.text).toEqual("vtortola@\\user\\whatever:>");
+
+            prompt.resetPath();
+
+            expect(prompt.text).toEqual("vtortola@\\:>");
+        });
     });
 });

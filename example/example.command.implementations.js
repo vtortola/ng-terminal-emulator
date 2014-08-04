@@ -63,7 +63,7 @@
                        "Type 'exit' to exit."],
                 breakLine: true
             });
-            session.commands.push({ command: 'change-prompt', prompt: 'websocket:/>' });
+            session.commands.push({ command: 'change-prompt', prompt: { path: 'websocket[' + url+']'} });
             session.contextName = "websocket";
             session.context = function () {
                 var me = {};
@@ -89,7 +89,7 @@
                         ws.close();
                         s.contextName = "";
                         delete s.context;
-                        s.commands.push({ command: 'reset-prompt' });
+                        s.commands.push({ command: 'reset-prompt', prompt: {path:true} });
                         s.output.push({ output: true, text: ["Websocket ended."], breakLine: true });
                         return;
                     }
@@ -116,7 +116,7 @@
 
             ga('set', { userId: login.toString() });
             session.login = login;
-            session.commands.push({ command: 'change-prompt', prompt: login + ':/>', user:true });
+            session.commands.push({ command: 'change-prompt', prompt: { user: login }});
             session.output.push({ output: true, text: ["Identity changed."], breakLine: true });
         }
         return me;
