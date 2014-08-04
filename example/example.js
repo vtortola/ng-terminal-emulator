@@ -90,10 +90,10 @@
 
 .config(['$gaProvider',function ($gaProvider) {
     $gaProvider.ga('create', 'UA-53263543-1', 'auto');
-    //$gaProvider.ga('create', 'UA-53263543-1', { 'userId': '11' });
 }])
 
 .config(['terminalConfigurationProvider', function (terminalConfigurationProvider) {
+
     terminalConfigurationProvider.setTypeSoundUrl('example/content/type.wav');
     terminalConfigurationProvider.setStartSoundUrl('example/content/start.wav');
 }])

@@ -2,7 +2,7 @@
 
     beforeEach(module('vtortola.ng-terminal'));
 
-    describe('terminalController', function () {
+    describe('Controller: terminalController', function () {
 
         var ctrl = null;
         var scope = null;
@@ -13,14 +13,14 @@
             $controller('terminalController', { '$rootScope': $rootScope, '$scope': scope })
         }]));
 
-        it('CommandLine writting', function () {
+        it('Can type on command line', function () {
             scope.keypress(82);
             scope.keypress(82);
             scope.keypress(82);
             expect(scope.commandLine).toEqual("RRR");
         });
 
-        it('CommandLine backspacing', function () {
+        it('Can backspace on command line', function () {
             scope.keypress(82);
             scope.keypress(82);
             scope.keypress(82);
@@ -29,13 +29,9 @@
             expect(scope.commandLine).toEqual("R");
         });
 
-        it('CommandLine executing', function (done) {
+        it('Can execute command', function (done) {
 
-            var c = {};
             scope.$on('terminal-input', function (e) {
-                console.log(e);
-                c.event = e;
-                
                 expect(scope.commandLine).toEqual("");
                 expect(scope.results.length).toEqual(1);
                 done();
@@ -45,11 +41,10 @@
             scope.keypress(82);
             scope.keypress(82);
             scope.execute();
-            expect(c.event).toBeDefined();
         });
 
-        describe("CommandLine history",function(){
-            it('Previous', function () {
+        describe("CommandLine history", function () {
+            it('Can go back on command history', function () {
                 scope.keypress(82);
                 scope.keypress(82);
                 scope.keypress(82);
@@ -58,7 +53,7 @@
                 scope.previousCommand();
                 expect(scope.commandLine).toEqual("RRR");
             });
-            it('Next', function () {
+            it('Can go forward in command history', function () {
                 scope.keypress(82);
                 scope.keypress(82);
                 scope.keypress(82);
@@ -82,7 +77,41 @@
                 scope.nextCommand();
                 expect(scope.commandLine).toEqual("");
             });
-        })
+        });
+
+        describe("Terminal operation commands", function () {
+            it('Can change prompt', function () {
+
+                scope.$broadcast('terminal-command', {
+                    command: 'change-prompt',
+                    prompt: 'testPrompt'
+                });
+
+                expect(scope.prompt).toEqual("testPrompt");
+
+                scope.$emit('terminal-command', {
+                    command: 'reset-prompt'
+                });
+
+                expect(scope.prompt).toEqual(":\\>");
+            });
+
+            it('Can clear results', function () {
+
+                scope.keypress(82);
+                scope.keypress(82);
+                scope.keypress(82);
+                scope.execute();
+
+                expect(scope.results.length).toEqual(1);
+
+                scope.$broadcast('terminal-command', {
+                    command: 'clear'
+                });
+
+                expect(scope.results.length).toEqual(0);
+            });
+        });
         
     });
 });

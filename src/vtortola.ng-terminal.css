@@ -17,13 +17,20 @@
     height: 500px;
     color: #F6F6FF;
     font-family: monospace;
-    padding: 20px;
     overflow-x: hidden;
     overflow-y: hidden;
     font-size: 12px;
     text-shadow: 0 0 8px rgba(255, 255, 255, 1);
     box-shadow: 0 0 20px rgba(217, 215, 255, 0.85) inset, 2px 2px 16px #000;
 }
+
+.terminal-viewport {
+    height: 94%;
+    margin: 15px 20px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
 .terminal-cursor{
     visibility:visible;
 }
