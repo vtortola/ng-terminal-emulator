@@ -123,26 +123,6 @@
     };
     commandBrokerProvider.appendCommandHandler(suCommandHandler());
 
-    var gaCommandHandler = function () {
-        var me = {};
-        var _ga = null;
-        me.command = 'ga';
-        me.description = ['Manipulates Google Analytics', "Syntax: ga <command> <operation> <item>", "Example: ga tracker get clientId"];
-        me.init = ['$ga', function ($ga) {
-            _ga = $ga;
-        }];
-        me.handle = function (session, command, operation, item) {
-            if (command == 'tracker') {
-                _ga(function (tracker) {
-                    var r = tracker[operation](item);
-                    session.output.push({ output: true, text: [r], breakLine: true });
-                });
-            }
-        }
-        return me;
-    };
-    commandBrokerProvider.appendCommandHandler(gaCommandHandler());
-
     var feedbackCommandHandler = function () {
         var me = {};
         var _ga = null;

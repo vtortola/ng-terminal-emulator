@@ -1,15 +1,25 @@
 ﻿describe('ng-terminal-example.command.filesystem', function () {
 
-    beforeEach(module('ng-terminal-example.command.filesystem', function ($provide) {
-        $provide.value('storage',window.sessionStorage);
+    beforeEach(module('ng-terminal-example.command.implementations','ng-terminal-example.command.filesystem',  function ($provide) {
+        $provide.value('storage', window.sessionStorage);
+        $provide.value('$ga', function () { } );
     }));
 
     var pathTools = null;
     var fs = null;
-    beforeEach(inject(['pathTools', 'fileSystem', 'storage', function (p, fileSystem, storage) {
+    var broker = null;
+    var session = null;
+    var testStorage = null;
+    beforeEach(inject(['pathTools', 'fileSystem', 'storage', 'commandBroker', function (p, fileSystem, storage, commandBroker) {
         pathTools = p;
         fs = fileSystem;
         storage.clear();
+        testStorage = storage;
+        broker = commandBroker;
+        session = {
+            output: [],
+            commands: []
+        };
     }]));
 
     describe('Service: pathTools', function () {
@@ -50,6 +60,7 @@
 
         it('Can detect files in a path', function () {
             expect(pathTools.isFileOfPath("\\", "\\_dir")).toEqual(false);
+            expect(pathTools.isFileOfPath("\\", "\\file")).toEqual(true);
             expect(pathTools.isFileOfPath("\\path", "\\path\\file")).toEqual(true);
             expect(pathTools.isFileOfPath("\\path", "\\path\\_dir")).toEqual(false);
             expect(pathTools.isFileOfPath("\\path", "\\file")).toEqual(false);
@@ -139,7 +150,7 @@
             fs.writeFile("file.txt", "hello");
             expect(fs.readFile("file.txt")).toEqual("hello");
             fs.appendToFile("file.txt", "hola");
-            expect(fs.readFile("file.txt")).toEqual("hellohola");
+            expect(fs.readFile("file.txt")).toEqual("hello\nhola");
         });
 
         it('Can delete file', function () {
@@ -174,18 +185,7 @@
         });
     });
 
-    describe("Commands", function () {
-
-        var broker = null;
-        var session = null;
-
-        beforeEach(inject(['commandBroker', function (commandBroker) {
-            broker = commandBroker;
-            session = {
-                output: [],
-                commands: []
-            };
-        }]));
+    describe("Commands:", function () {
 
         describe('mkdir', function () {
 
@@ -230,10 +230,41 @@
                 broker.execute(session, "rmdir myDir");
                 expect(session.output.length).toEqual(1);
                 expect(session.output[0].text[0]).toEqual('Directory removed.');
+
+                var counter = 0;
+                for (var key in testStorage) {
+                    counter++;
+                }
+                expect(counter).toEqual(0);
             });
 
             it('Fails when removing directory that does not exist', function () {
                 expect(function () { broker.execute(session, "rmdir myDir2"); }).toThrowError();
+            });
+
+            it('Can remove directory with subdirectories and files', function () {
+
+                fs.createDir("myDir");
+                fs.path("myDir");
+                fs.writeFile("file.txt", "test");
+                fs.createDir("myDir2");
+                fs.path("myDir2");
+                fs.writeFile("file.txt", "test");
+                fs.createDir("myDir3");
+                fs.path("myDir3");
+                fs.writeFile("file.txt", "test");
+                fs.path("..");
+                fs.path("..");
+                fs.path("..");
+                broker.execute(session, "rmdir myDir");
+                expect(session.output.length).toEqual(1);
+                expect(session.output[0].text[0]).toEqual('Directory removed.');
+
+                var counter = 0;
+                for (var key in testStorage) {
+                    counter++;
+                }
+                expect(counter).toEqual(0);
             });
         });
 
@@ -295,6 +326,91 @@
                 broker.execute(session, "pwd");
                 expect(session.output.length).toEqual(1);
                 expect(session.output[0].text[0]).toEqual('\\myDir\\myDir2\\myDir3');
+            });
+        });
+
+        describe('cat', function () {
+
+            it('Can read single line file', function () {
+                fs.writeFile("file.txt", "test");
+                broker.execute(session, "cat file.txt");
+                expect(session.output.length).toEqual(1);
+                expect(session.output[0].text[0]).toEqual('test');
+            });
+
+            it('Can read multi line file', function () {
+                broker.execute(session, "break test test > file.txt");
+                broker.execute(session, "cat file.txt");
+                expect(session.output.length).toEqual(1);
+                expect(session.output[0].text.length).toEqual(2);
+                expect(session.output[0].text[0]).toEqual('test');
+                expect(session.output[0].text[1]).toEqual('test');
+            });
+
+            it('Fails when the file does not exists', function () {
+                expect(function () { broker.execute(session, "cat file.txt"); }).toThrowError("The file does not exist");
+            });
+        });
+
+        describe('rm', function () {
+
+            it('Can delete file', function () {
+                fs.writeFile("file.txt", "test");
+                broker.execute(session, "rm file.txt");
+                expect(session.output.length).toEqual(1);
+                expect(session.output[0].text[0]).toEqual('File deleted.');
+                expect(function () { broker.execute(session, "cat file.txt"); }).toThrowError("The file does not exist");
+            });
+
+            it('Fails when the file does not exists', function () {
+                expect(function () { broker.execute(session, "rm file.txt"); }).toThrowError("The file does not exist");
+            });
+        });
+    });
+    describe("Redirections:", function () {
+
+        describe('>', function () {
+
+            it('Can create simple file', function () {
+                broker.execute(session, "echo test > file.txt");
+                expect(session.output.length).toEqual(0);
+                expect(fs.readFile("file.txt")).toEqual("test");
+            });
+
+            it('Can overwrite simple file', function () {
+                broker.execute(session, "echo test > file.txt");
+                broker.execute(session, "echo xxxxxx > file.txt");
+                expect(session.output.length).toEqual(0);
+                expect(fs.readFile("file.txt")).toEqual("xxxxxx");
+            });
+
+            it('Can create multiline file', function () {
+                broker.execute(session, "break line1 line2 line3 > file.txt");
+                expect(session.output.length).toEqual(0);
+                expect(fs.readFile("file.txt")).toEqual("line1\nline2\nline3");
+            });
+        });
+
+        describe('>>', function () {
+
+            it('Can create simple file', function () {
+                broker.execute(session, "echo test >> file.txt");
+                expect(session.output.length).toEqual(0);
+                expect(fs.readFile("file.txt")).toEqual("test");
+            });
+
+            it('Can append to simple file', function () {
+                broker.execute(session, "echo test > file.txt");
+                broker.execute(session, "echo xxxxxx >> file.txt");
+                expect(session.output.length).toEqual(0);
+                expect(fs.readFile("file.txt")).toEqual("test\nxxxxxx");
+            });
+
+            it('Can append to multiline file', function () {
+                broker.execute(session, "break line1 line2 line3 > file.txt");
+                broker.execute(session, "break line4 line5 line6 >> file.txt");
+                expect(session.output.length).toEqual(0);
+                expect(fs.readFile("file.txt")).toEqual("line1\nline2\nline3\nline4\nline5\nline6");
             });
         });
     });

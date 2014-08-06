@@ -82,8 +82,11 @@
 			if (path.substr(0, basePath.length) == basePath) {
 				var sp = path.substr(basePath.length);
 				if (me.isAbsolute(sp) && sp.indexOf(config.directorySeparator) === sp.lastIndexOf(config.directorySeparator)) {
-					sp = sp.substr(config.directorySeparator.length);
-					return sp!="_dir";
+				    sp = sp.substr(config.directorySeparator.length);
+				    return sp != "_dir";
+				}
+				else {
+				    return sp.indexOf(config.directorySeparator) == -1 && sp != "_dir";
 				}
 			}
 
@@ -212,12 +215,14 @@
 				path = pathTools.combine(_currentPath, path);
 				var keys = [];
 				for (var key in storage) {
-					if (pathTools.isFileOfPath(path, key)) {
-						keys.push(key);
-					}
-					else if (pathTools.isDirectoryOfPath(path, key)) {
-						keys.push(key);
-					}
+
+				    if (key.length >= _currentPath.length) {
+				        var s = key.substr(0, _currentPath.length);
+				        if (s === _currentPath) {
+				            keys.push(key);
+				            console.log(key);
+				        }
+				    }
 				}
 				storage.removeItem(dirkey)
 				for (var i = 0; i < keys.length; i++) {
@@ -244,7 +249,7 @@
 
 			var filekey = pathTools.combine(_currentPath, name);
 			var prevcontent = storage.getItem(filekey);
-			storage.setItem(filekey, prevcontent + content);
+			storage.setItem(filekey, (prevcontent?prevcontent + "\n":"") + content);
 		};
 
 		me.deleteFile = function (name) {
@@ -370,6 +375,97 @@
         return me;
     };
     commandBrokerProvider.appendCommandHandler(lsCommand());
+
+    var catCommand = function () {
+        var me = {};
+        var fs = null;
+        me.command = 'cat';
+        me.description = ['Reads file.', "Syntax: cat <fileName>", "Example: cat file.txt"];
+        me.init = ['fileSystem', function (fileSystem) {
+            fs = fileSystem;
+        }];
+        me.handle = function (session, path) {
+            if (!path)
+                throw new Error("A file name is required");
+            var content = fs.readFile(path);
+            var outtext = content ? content.split('\n') : [];
+            session.output.push({ output: true, text: outtext, breakLine: true });
+         }
+        return me;
+    };
+    commandBrokerProvider.appendCommandHandler(catCommand());
+
+    var rmCommand = function () {
+        var me = {};
+        var fs = null;
+        me.command = 'rm';
+        me.description = ['Removes file.', "Syntax: rm <fileName>", "Example: rm file.txt"];
+        me.init = ['fileSystem', function (fileSystem) {
+            fs = fileSystem;
+        }];
+        me.handle = function (session, path) {
+            if (!path)
+                throw new Error("A file name is required");
+           fs.deleteFile(path)
+           session.output.push({ output: true, text: ["File deleted."], breakLine: true });
+        }
+        return me;
+    };
+    commandBrokerProvider.appendCommandHandler(rmCommand());
+
+    var createFileRedirection = function () {
+        var me = {};
+        var fs = null;
+        me.command = '>';
+        me.init = ['fileSystem', function (fileSystem) {
+            fs = fileSystem;
+        }];
+        me.handle = function (session, path) {
+            if (!path)
+                throw new Error("A file name is required");
+
+            if (session.input) {
+                var content = '';
+                for (var i = 0; i < session.input.length; i++) {
+                    for (var j = 0; j < session.input[i].text.length; j++) {
+                        content += session.input[i].text[j];
+                        if (j != session.input[i].text.length -1)
+                            content += '\n';
+                    }
+                }
+                fs.writeFile(path, content);
+            }
+        }
+        return me;
+    };
+    commandBrokerProvider.appendRedirectorHandler(createFileRedirection());
+
+    var appendFileRedirection = function () {
+        var me = {};
+        var fs = null;
+        me.command = '>>';
+        me.init = ['fileSystem', function (fileSystem) {
+            fs = fileSystem;
+        }];
+        me.handle = function (session, path) {
+            if (!path)
+                throw new Error("A file name is required");
+
+            if (session.input) {
+                var content = '';
+                for (var i = 0; i < session.input.length; i++) {
+                    for (var j = 0; j < session.input[i].text.length; j++) {
+                        content += session.input[i].text[j];
+                        if (j != session.input[i].text.length - 1)
+                            content += '\n';
+                    }
+                }
+                fs.appendToFile(path, content);
+            }
+        }
+        return me;
+    };
+    commandBrokerProvider.appendRedirectorHandler(appendFileRedirection());
 }])
 
 .run(['fileSystemConfiguration', 'storage', function (fs, storage) {
