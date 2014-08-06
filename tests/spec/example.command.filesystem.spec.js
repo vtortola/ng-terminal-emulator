@@ -181,7 +181,7 @@
             fs.createDir("subDir");
             list = fs.list();
             expect(list.files.length).toEqual(2);
-            expect(list.directories.length).toEqual(1);
+            expect(list.directories.length).toEqual(2);
         });
     });
 

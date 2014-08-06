@@ -29,6 +29,15 @@
                 height: 100%;
                 width: 100%;
                 background-color: black;
+                padding:0px;
+            }
+            body{
+                padding:0px;
+                margin:0px;
+            }
+            .console-section {
+                margin:0px;
+                padding:10px;
                 background: rgb(0,0,0);
                 background: -moz-linear-gradient(-45deg, rgba(0,0,0,1) 0%, rgba(69,72,77,1) 100%);
                 background: -webkit-gradient(linear, left top, right bottom, color-stop(0%,rgba(0,0,0,1)), color-stop(100%,rgba(69,72,77,1)));
@@ -37,6 +46,14 @@
                 background: -ms-linear-gradient(-45deg, rgba(0,0,0,1) 0%,rgba(69,72,77,1) 100%);
                 background: linear-gradient(135deg, rgba(0,0,0,1) 0%,rgba(69,72,77,1) 100%);
                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000000', endColorstr='#45484d',GradientType=1 );
+            }
+            .instructions-section {
+                margin: 0px;
+                padding: 10px;
+                padding-bottom: 20px;
+                background-color: #222;
+                border-top: 1px solid #696969;
+                box-shadow: inset 0 20px 20px -20px #696969;
             }
             .unit-tests {
                 color: #fff;
@@ -59,15 +76,16 @@
                 height: 58px;
                 display: block;
                 font-size: 17px;
-                color: #FFF;
+                color:#fff;
                 padding-left: 68px;
                 padding-top: 22px;
                 background: rgba(0, 0, 0, 0) url(http://vtortola.github.io/WebSocketListener/images/github-button.png) 0 0 no-repeat;
             }
             .container {
-                height: 500px;
+
                 width: 720px;
                 margin: 0px auto;
+                color: #FFF;
             }
             .head {
                 font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;
@@ -76,28 +94,58 @@
                 height:100px;
                 padding:5px;
             }
+            .instructions {
+                font-family: Helvetica;
+                color: #FFF;
+            }
+            .instructions pre {
+                margin-left:20px;
+            } 
             .head h1, .head h4 {
-                margin:3px;
-                font-weight:normal;
+                margin: 3px;
+                font-weight: normal;
+            }
+            .head h1{
+                font-size:2em;
             }
             
         </style>
         
     </head>
     <body ng-app="ng-terminal-example" ng-controller="console">
-        <div class="container">
-            <div class="head">
-                <h1>ng-terminal-emulator</h1>
-                <h4>A terminal emulator in Javascript with AngularJS </h4>
-                <a href="https://github.com/vtortola/ng-terminal-emulator" class="gitHub">
-                    <small>View project on</small>
-                    GitHub
-                </a>
-            </div>
-            <terminal>
+        <section class="console-section">
+            <section class="container">
+                <section class="head">
+                    <h1>ng-terminal-emulator</h1>
+                    <h4>A terminal emulator in Javascript with AngularJS </h4>
+                    <a href="https://github.com/vtortola/ng-terminal-emulator" class="gitHub">
+                        <small>View project on</small>
+                        GitHub
+                    </a>
+                </section>
+                <terminal>
 
-            </terminal>
-            <a class="unit-tests" href="tests">Unit tests</a>
-        </div>
+                </terminal>
+                <a class="unit-tests" href="tests">Unit tests</a>
+                
+            </section>
+        </section>
+        <section class="instructions-section">
+            <section class="container">
+                <section class="instructions">
+                    <h3>Instructions</h3>
+                    <p>This is an example of ng-terminal-emulator used to recreate a small command line interpreter.</p>
+                    <p>
+                        This example uses browser's <b>localStorage</b> as file system. It is possible to create files
+                        using standard redirection:
+                    </p>
+                    <pre>:>echo single line > file.txt</pre>
+                    <pre>:>break multiple line > file.txt</pre>
+                    <p>Or append to files:</p>
+                    <pre>:>echo single line >> file.txt</pre>
+                    <pre>:>break multiple line >> file.txt</pre>
+                </section>
+            </section>
+        </section>
     </body>
 </html>

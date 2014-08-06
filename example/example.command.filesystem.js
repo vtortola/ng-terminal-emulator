@@ -165,6 +165,9 @@
 				files:[]
 			};
 
+			if (_currentPath != config.directorySeparator)
+			    result.directories.push("..");
+
 			for (var key in storage) {
 				if (pathTools.isFileOfPath(_currentPath, key)) {
 					result.files.push(pathTools.getPathItemName(key));

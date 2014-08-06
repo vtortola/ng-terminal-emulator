@@ -20,7 +20,7 @@
     overflow-x: hidden;
     overflow-y: hidden;
     font-size: 12px;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 1);
+    text-shadow: 0 0 6px rgba(255, 255, 255, .8);
     box-shadow: 0 0 20px rgba(217, 215, 255, 0.85) inset, 2px 2px 16px #000;
 }
 
