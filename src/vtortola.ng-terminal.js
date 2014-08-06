@@ -255,9 +255,10 @@
     return {
         restrict: 'E',
         controller: 'terminalController',
-        template: "<section class='terminal' ng-paste='handlePaste($event)'><div class='terminal-viewport'><div class='terminal-results'></div><span class='terminal-prompt' ng-show='showPrompt'>{{prompt.text}}</span><span class='terminal-input'>{{commandLine}}</span><span class='terminal-cursor'>_</span></div></section>",
+        template: "<section class='terminal' ng-paste='handlePaste($event)'><div class='terminal-viewport'><div class='terminal-results'></div><span class='terminal-prompt' ng-show='showPrompt'>{{prompt.text}}</span><span class='terminal-input'>{{commandLine}}</span><span class='terminal-cursor'>_</span></div><textarea ng-model='commandLine' class='terminal-target'></textarea></section>",
         link: function (scope, element, attrs, controller) {
             
+            var target = angular.element(element[0].querySelector('.terminal-target'));
             var consoleView = angular.element(element[0].querySelector('.terminal-viewport'));
             var results = angular.element(element[0].querySelector('.terminal-results'));
             var prompt = angular.element(element[0].querySelector('.terminal-prompt'));
@@ -268,13 +269,17 @@
                 cursor.toggleClass('terminal-cursor-hidden');
             }, 500);
 
-            $document.on("keypress", function (e) {
+            consoleView.on('click', function () {
+                target[0].focus();
+            });
+
+            target.on("keypress", function (e) {
                 if (scope.showPrompt)
                     scope.keypress(e.which);
                 e.preventDefault();
             });
 
-            $document.on("keydown", function (e) {
+            target.on("keydown", function (e) {
                 
                 if (e.keyCode == 8) {
                     if (scope.showPrompt)
