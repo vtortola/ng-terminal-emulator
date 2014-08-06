@@ -93,12 +93,12 @@
 		me.isDirectoryOfPath = function (basePath, path) {
 			if (path.substr(0, basePath.length) == basePath) {
 				var sp = path.substr(basePath.length);
-				if (me.isAbsolute(sp) && sp.indexOf(config.directorySeparator) === sp.lastIndexOf(config.directorySeparator)) {
-					sp = sp.substr(config.directorySeparator.length);
-					return sp == "_dir";
+				if (sp.length> 5) {
+				    var sp2 = sp.substr(0, sp.length - 5);
+                    if(sp2 + "\\_dir" === sp)
+					    return !!sp;
 				}
 			}
-
 			return false
 		};
 
@@ -119,12 +119,12 @@
 
 		var fileNameValidator = /^[\w_.\-]+$/;
 		me.isFileNameValid = function (name) {
-			return !!name && !!name.match(fileNameValidator);
+			return !!name && name[0] != "_" && !!name.match(fileNameValidator);
 		};
 
 		var dirNameValidator = /^[\w_\-]+$/;
 		me.isDirNameValid = function (name) {
-			return !!name && !!name.match(dirNameValidator);
+		    return !!name && name[0] != "_" && !!name.match(dirNameValidator);
 		};
 
 		return me;
@@ -142,6 +142,8 @@
 			if (path == "..") {
 				_currentPath = pathTools.directoryUp(_currentPath);
 			}
+			else if (path && !pathTools.isDirNameValid(path))
+			    throw new Error("The directory name is not valid");
 			else if (path) {
 
 				var dirkey = pathTools.combine(_currentPath, path, "_dir");
@@ -168,11 +170,16 @@
 					result.directories.push(pathTools.getPathItemName(key));
 				}
 			}
-
+			result.directories.sort();
+			result.files.sort();
 			return result;
 		};
 
 		me.existsDir = function (path, failIfNotExist) {
+
+		    if (!pathTools.isDirNameValid(path))
+		        throw new Error("The directory name is not valid");
+
 			var dirkey = pathTools.combine(_currentPath, path, "_dir");
 			var exists = storage.getItem(dirkey);
 			if (!exists && failIfNotExist)
@@ -181,6 +188,10 @@
 		};
 
 		me.createDir = function (path) {
+
+		    if (!pathTools.isDirNameValid(path))
+		        throw new Error("The directory name is not valid");
+
 			if (!pathTools.isDirNameValid(pathTools.getPathItemName(path)))
 				throw new Error("Invalid directory name");
 			if (me.existsDir(path))
@@ -193,14 +204,18 @@
 
 		me.removeDir = function (path) {
 
-			if (me.existsDir(path,true)){
+		    if (!pathTools.isDirNameValid(path))
+		        throw new Error("The directory name is not valid");
+
+		    if (me.existsDir(path, true)) {
+		        var dirkey = pathTools.combine(_currentPath, path, "_dir");
 				path = pathTools.combine(_currentPath, path);
 				var keys = [];
 				for (var key in storage) {
 					if (pathTools.isFileOfPath(path, key)) {
 						keys.push(key);
 					}
-					else if (path.isDirectoryOfPath(path, key)) {
+					else if (pathTools.isDirectoryOfPath(path, key)) {
 						keys.push(key);
 					}
 				}
@@ -261,6 +276,100 @@
 
 .config(['commandBrokerProvider', function (commandBrokerProvider) {
 
+    var pwdCommand = function () {
+        var me = {};
+        var fs = null;
+        me.command= 'pwd';
+        me.description= ['Shows current directory.'];
+        me.init = ['fileSystem', function (fileSystem) {
+            fs = fileSystem;
+        }];
+        me.handle = function (session) {
+            session.output.push({ output: true, text: [fs.path()], breakLine: true });
+        }
+        return me;
+    };
+    commandBrokerProvider.appendCommandHandler(pwdCommand());
+
+    var cdCommand = function () {
+        var me = {};
+        var fs = null;
+        me.command = 'cd';
+        me.description = ['Changes directory.', "Syntax: cd <path>", "Example: cd myDirectory", "Example: cd .."];
+        me.init = ['fileSystem', function (fileSystem) {
+            fs = fileSystem;
+        }];
+        me.handle = function (session, path) {
+            if (!path)
+                throw new Error("A directory name is required");
+            session.commands.push({ command: 'change-prompt', prompt: { path: fs.path(path) } });
+        }
+        return me;
+    };
+    commandBrokerProvider.appendCommandHandler(cdCommand());
+
+    var mkdirCommand = function () {
+        var me = {};
+        var fs = null;
+        me.command = 'mkdir';
+        me.description = ['Creates directory.',"Syntax: mkdir <directoryName>", "Example: mkdir myDirectory"];
+        me.init = ['fileSystem', function (fileSystem) {
+            fs = fileSystem;
+        }];
+        me.handle = function (session, path) {
+            if (!path)
+                throw new Error("A directory name is required");
+            fs.createDir(path);
+            session.output.push({ output: true, text: ["Directory created."], breakLine: true });
+        }
+        return me;
+    };
+    commandBrokerProvider.appendCommandHandler(mkdirCommand());
+
+    var rmdirCommand = function () {
+        var me = {};
+        var fs = null;
+        me.command = 'rmdir';
+        me.description = ['Removes directory.', "Syntax: rmdir <directoryName>", "Example: rmdir myDirectory"];
+        me.init = ['fileSystem', function (fileSystem) {
+            fs = fileSystem;
+        }];
+        me.handle = function (session, path) {
+            if (!path)
+                throw new Error("A directory name is required");
+            fs.removeDir(path);
+            session.output.push({ output: true, text: ["Directory removed."], breakLine: true });
+        }
+        return me;
+    };
+    commandBrokerProvider.appendCommandHandler(rmdirCommand());
+
+    var lsCommand = function () {
+        var me = {};
+        var fs = null;
+        me.command = 'ls';
+        me.description = ['List directory contents'];
+        me.init = ['fileSystem', function (fileSystem) {
+            fs = fileSystem;
+        }];
+        me.handle = function (session) {
+            var l = fs.list();
+            var output = [];
+            
+            for (var i = 0; i < l.directories.length; i++) {
+                output.push("[DIR]\t\t" + l.directories[i]);
+            }
+            for (var i = 0; i < l.files.length; i++) {
+                output.push("     \t\t" + l.files[i]);
+            }
+            output.push("");
+            output.push("Total: " + (l.directories.length + l.files.length));
+
+            session.output.push({ output: true, text: output, breakLine: true });
+        }
+        return me;
+    };
+    commandBrokerProvider.appendCommandHandler(lsCommand());
 }])
 
 .run(['fileSystemConfiguration', 'storage', function (fs, storage) {

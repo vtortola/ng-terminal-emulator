@@ -1,4 +1,4 @@
-﻿angular.module('ng-terminal-example', ['vtortola.ng-terminal', 'ng-terminal-example.command.tools', 'ng-terminal-example.command.implementations'])
+﻿angular.module('ng-terminal-example', ['vtortola.ng-terminal', 'ng-terminal-example.command.tools', 'ng-terminal-example.command.implementations', 'ng-terminal-example.command.filesystem'])
 .provider('$ga', function () {
 
     window['GoogleAnalyticsObject'] = 'ga';

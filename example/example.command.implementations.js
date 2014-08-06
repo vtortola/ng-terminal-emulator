@@ -172,10 +172,11 @@
     // this must be the last
     var helpCommandHandler = function () {
         var me = {};
-        var list = commandBrokerProvider.describe();
+        
         me.command = 'help';
         me.description = ['Provides instructions about how to use this terminal'];
         me.handle = function (session, cmd) {
+            var list = commandBrokerProvider.describe();
             var outText = [];
             if (cmd) {
                 for (var i = 0; i < list.length; i++) {
@@ -194,7 +195,12 @@
             else {
                 outText.push("Available commands:");
                 for (var i = 0; i < list.length; i++) {
-                    outText.push("  " + list[i].command);
+                    var str = "  " + list[i].command + "\t\t";
+                    for (var j = 0; j < 3 && i + 1 < list.length; j++) {
+                        var cmd = list[++i].command;
+                        str += cmd + (cmd.length > 6 ? "\t" : "\t\t");
+                    }
+                    outText.push(str);
                 }
                 outText.push("");
                 outText.push("Enter 'help <command>' to get help for a particular command.");

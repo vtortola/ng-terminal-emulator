@@ -5,9 +5,11 @@
     }));
 
     var pathTools = null;
-
-    beforeEach(inject(['pathTools', function (p) {
+    var fs = null;
+    beforeEach(inject(['pathTools', 'fileSystem', 'storage', function (p, fileSystem, storage) {
         pathTools = p;
+        fs = fileSystem;
+        storage.clear();
     }]));
 
     describe('Service: pathTools', function () {
@@ -59,13 +61,15 @@
 
         it('Can detect directories in a path', function () {
             expect(pathTools.isDirectoryOfPath("\\", "\\_dir")).toEqual(false);
+            expect(pathTools.isDirectoryOfPath("\\", "\\path\\_dir")).toEqual(true);
             expect(pathTools.isDirectoryOfPath("\\path", "\\path\\file")).toEqual(false);
-            expect(pathTools.isDirectoryOfPath("\\path", "\\path\\_dir")).toEqual(true);
+            expect(pathTools.isDirectoryOfPath("\\path", "\\path\\_dir")).toEqual(false);
             expect(pathTools.isDirectoryOfPath("\\path", "\\file")).toEqual(false);
-            expect(pathTools.isDirectoryOfPath("\\path1\\path2", "\\path1\\path2\\_dir")).toEqual(true);
+            expect(pathTools.isDirectoryOfPath("\\path1\\path2", "\\path1\\path2\\_dir")).toEqual(false);
+            expect(pathTools.isDirectoryOfPath("\\path1", "\\path1\\path2\\_dir")).toEqual(true);
             expect(pathTools.isDirectoryOfPath("\\path1\\path2", "\\path1\\file")).toEqual(false);
             expect(pathTools.isDirectoryOfPath("\\path1\\path2", "\\path1\\path2\\path3\\file")).toEqual(false);
-            expect(pathTools.isDirectoryOfPath("\\path1\\path2", "\\path1\\path2\\path3\\_dir")).toEqual(false);
+            expect(pathTools.isDirectoryOfPath("\\path1\\path2", "\\path1\\path2\\path3\\_dir")).toEqual(true);
         });
         
         it('Can get path item names', function () {
@@ -80,6 +84,7 @@
         it('Can validate file names', function () {
             expect(pathTools.isFileNameValid("\\jklsdfjls")).toEqual(false);
             expect(pathTools.isFileNameValid("jklsdfjls")).toEqual(true);
+            expect(pathTools.isFileNameValid("_jklsdfjls")).toEqual(false);
             expect(pathTools.isFileNameValid("jkl\\sdfjls")).toEqual(false);
             expect(pathTools.isFileNameValid("jklsdfjls\\")).toEqual(false);
             expect(pathTools.isFileNameValid("jklsdfjls.txt")).toEqual(true);
@@ -96,12 +101,6 @@
 
     describe('Service: fileSystem', function () {
 
-        var fs = null; 
-        beforeEach(inject(['fileSystem', 'storage', function (fileSystem, storage) {
-            fs = fileSystem;
-            storage.clear();
-        }]));
-
         it('Default path', function () {
             expect(fs.path()).toEqual("\\");
         });
@@ -112,6 +111,13 @@
             expect(fs.path()).toEqual("\\myDir");
             fs.path("..");
             expect(fs.path()).toEqual("\\");
+        });
+
+        it('Can delete directory', function () {
+            fs.createDir("myDir");
+            expect(fs.list().directories.length).toEqual(1);
+            fs.removeDir("myDir");
+            expect(fs.list().directories.length).toEqual(0);
         });
 
         it('Can create subdirectory', function () {
@@ -127,6 +133,20 @@
         it('Can create file', function () {
             fs.writeFile("file.txt", "hello");
             expect(fs.readFile("file.txt")).toEqual("hello");
+        });
+
+        it('Can append to file', function () {
+            fs.writeFile("file.txt", "hello");
+            expect(fs.readFile("file.txt")).toEqual("hello");
+            fs.appendToFile("file.txt", "hola");
+            expect(fs.readFile("file.txt")).toEqual("hellohola");
+        });
+
+        it('Can delete file', function () {
+            fs.writeFile("file.txt", "hello");
+            expect(fs.readFile("file.txt")).toEqual("hello");
+            fs.deleteFile("file.txt");
+            expect(function () { fs.readFile("file.txt"); }).toThrowError("The file does not exist");
         });
 
         it('Can create file in directory', function () {
@@ -151,6 +171,131 @@
             list = fs.list();
             expect(list.files.length).toEqual(2);
             expect(list.directories.length).toEqual(1);
+        });
+    });
+
+    describe("Commands", function () {
+
+        var broker = null;
+        var session = null;
+
+        beforeEach(inject(['commandBroker', function (commandBroker) {
+            broker = commandBroker;
+            session = {
+                output: [],
+                commands: []
+            };
+        }]));
+
+        describe('mkdir', function () {
+
+            it('Can create directory', function () {
+                broker.execute(session, "mkdir myDir");
+                expect(session.output.length).toEqual(1);
+                expect(session.output[0].text[0]).toEqual('Directory created.');
+                fs.path("myDir");
+                expect(fs.path()).toEqual("\\myDir");
+            });
+
+            it('Fails when creating directory with invalid name', function () {
+                expect(function () { broker.execute(session, "mkdir _myDir"); }).toThrowError();
+            });
+
+            it('Fails when creating directory twice', function () {
+                broker.execute(session, "mkdir myDir");
+                expect(function () { broker.execute(session, "mkdir myDir"); }).toThrowError();
+            });
+
+        });
+
+        describe('rmdir', function () {
+
+            it('Can remove directory', function () {
+                fs.createDir("myDir");
+                broker.execute(session, "rmdir myDir");
+                expect(session.output.length).toEqual(1);
+                expect(session.output[0].text[0]).toEqual('Directory removed.');
+            });
+
+            it('Can remove directory with subdirectories', function () {
+                fs.createDir("myDir");
+                fs.path("myDir");
+                fs.createDir("myDir2");
+                fs.path("myDir2");
+                fs.createDir("myDir3");
+                fs.path("myDir3");
+                fs.path("..");
+                fs.path("..");
+                fs.path("..");
+                broker.execute(session, "rmdir myDir");
+                expect(session.output.length).toEqual(1);
+                expect(session.output[0].text[0]).toEqual('Directory removed.');
+            });
+
+            it('Fails when removing directory that does not exist', function () {
+                expect(function () { broker.execute(session, "rmdir myDir2"); }).toThrowError();
+            });
+        });
+
+        describe('cd', function () {
+
+            it('Can change directory', function () {
+                fs.createDir("myDir");
+                broker.execute(session, "cd myDir");
+                expect(session.commands.length).toEqual(1);
+                expect(session.commands[0].command).toEqual('change-prompt');
+                expect(session.commands[0].prompt.path).toEqual('\\myDir');
+            });
+
+            it('Can go back directory', function () {
+                fs.createDir("myDir");
+                broker.execute(session, "cd myDir");
+                expect(session.commands.length).toEqual(1);
+                expect(session.commands[0].command).toEqual('change-prompt');
+                expect(session.commands[0].prompt.path).toEqual('\\myDir');
+                session.commands = [];
+                broker.execute(session, "cd ..");
+                expect(session.commands.length).toEqual(1);
+                expect(session.commands[0].command).toEqual('change-prompt');
+                expect(session.commands[0].prompt.path).toEqual('\\');
+            });
+
+            it('Fails when directory does not exist', function () {
+                expect(function () { broker.execute(session, "cd myDir"); }).toThrowError();
+            });
+
+        });
+
+        describe('ls', function () {
+
+            it('Can list directories', function () {
+                fs.createDir("myDir");
+                fs.createDir("myDir2");
+                fs.createDir("myDir3");
+                broker.execute(session, "ls");
+                expect(session.output.length).toEqual(1);
+                expect(session.output[0].text.length).toEqual(5);
+                expect(session.output[0].text[0]).toEqual("[DIR]\t\tmyDir");
+                expect(session.output[0].text[1]).toEqual("[DIR]\t\tmyDir2");
+                expect(session.output[0].text[2]).toEqual("[DIR]\t\tmyDir3");
+                expect(session.output[0].text[3]).toEqual("");
+                expect(session.output[0].text[4]).toEqual("Total: 3");
+            });
+        });
+
+        describe('pwd', function () {
+
+            it('Can identify the working directory', function () {
+                fs.createDir("myDir");
+                fs.path("myDir");
+                fs.createDir("myDir2");
+                fs.path("myDir2");
+                fs.createDir("myDir3");
+                fs.path("myDir3");
+                broker.execute(session, "pwd");
+                expect(session.output.length).toEqual(1);
+                expect(session.output[0].text[0]).toEqual('\\myDir\\myDir2\\myDir3');
+            });
         });
     });
 });
