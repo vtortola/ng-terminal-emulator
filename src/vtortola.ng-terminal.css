@@ -22,11 +22,13 @@
     font-size: 12px;
     text-shadow: 0 0 6px rgba(255, 255, 255, .8);
     box-shadow: 0 0 20px rgba(217, 215, 255, 0.85) inset, 2px 2px 16px #000;
+    position:relative;
 }
 
 .terminal-target{
     position:absolute;
-    top:-1000px;
+    top:-20px;
+    z-index:-1;
 }
 
 .terminal-viewport {

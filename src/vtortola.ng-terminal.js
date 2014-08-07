@@ -255,7 +255,8 @@
     return {
         restrict: 'E',
         controller: 'terminalController',
-        template: "<section class='terminal' ng-paste='handlePaste($event)'><div class='terminal-viewport'><div class='terminal-results'></div><span class='terminal-prompt' ng-show='showPrompt'>{{prompt.text}}</span><span class='terminal-input'>{{commandLine}}</span><span class='terminal-cursor'>_</span></div><textarea ng-model='commandLine' class='terminal-target'></textarea></section>",
+        transclude:true,
+        template: "<section class='terminal' ng-paste='handlePaste($event)'><div class='terminal-viewport'><div class='terminal-results'></div><span class='terminal-prompt' ng-show='showPrompt'>{{prompt.text}}</span><span class='terminal-input'>{{commandLine}}</span><span class='terminal-cursor'>_</span></div><input type='text' ng-model='commandLine' class='terminal-target'/><div ng-transclude></div></section>",
         link: function (scope, element, attrs, controller) {
             
             var target = angular.element(element[0].querySelector('.terminal-target'));
@@ -264,13 +265,23 @@
             var prompt = angular.element(element[0].querySelector('.terminal-prompt'));
             var cursor = angular.element(element[0].querySelector('.terminal-cursor'));
             var consoleInput = angular.element(element[0].querySelector('.terminal-input'));
-
+            
             setInterval(function () {
-                cursor.toggleClass('terminal-cursor-hidden');
+                var focused = $document[0].activeElement == target[0];
+                if (focused) {
+                    cursor.toggleClass('terminal-cursor-hidden');
+                }
+                else if (!target.hasClass('terminal-cursor-hidden'))
+                    cursor.addClass('terminal-cursor-hidden');
             }, 500);
 
             consoleView.on('click', function () {
                 target[0].focus();
+                element.toggleClass('terminal-focused', true);
+            });
+
+            target.on("blur", function (e) {
+                element.toggleClass('terminal-focused', false);
             });
 
             target.on("keypress", function (e) {
@@ -280,7 +291,10 @@
             });
 
             target.on("keydown", function (e) {
-                
+
+                if (e.keyCode == 9) {
+                    e.preventDefault();
+                }
                 if (e.keyCode == 8) {
                     if (scope.showPrompt)
                         scope.backspace();
