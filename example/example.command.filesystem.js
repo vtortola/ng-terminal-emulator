@@ -98,8 +98,10 @@
 				var sp = path.substr(basePath.length);
 				if (sp.length> 5) {
 				    var sp2 = sp.substr(0, sp.length - 5);
-                    			if(sp2 + "\\_dir" === sp)
-					    return !!sp && sp2.indexOf(config.directorySeparator) == sp2.lastIndexOf(config.directorySeparator);
+                    			if(sp2 + "\\_dir" === sp){
+					    var pos = sp2.indexOf("\\");
+                        		    return !!sp && (pos == -1 || pos ==0);
+                    			}
 				}
 			}
 			return false
