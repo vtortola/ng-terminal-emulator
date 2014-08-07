@@ -1,6 +1,7 @@
 ﻿.terminal-line{
     margin:0;
     padding:0;
+    white-space:pre-wrap;
 }
 .terminal {
     background: -moz-radial-gradient(center, ellipse cover,  rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 83%, rgba(0,0,0,0.65) 100%);
@@ -26,9 +27,11 @@
 }
 
 .terminal-target{
-    position:absolute;
-    top:-20px;
-    z-index:-1;
+    vertical-align:bottom;
+    opacity:0;
+    color:transparent;
+    height:0px;
+    width:0px;
 }
 
 .terminal-viewport {
@@ -46,6 +49,7 @@
 }
 .terminal-input{
     white-space:pre-wrap;
+    overflow-wrap:break-word;
 }
 .terminal-result-line-server{
     margin-left:10px;
