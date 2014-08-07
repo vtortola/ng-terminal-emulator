@@ -102,6 +102,7 @@ body {
     text-shadow:3px 3px 4px #000;
     visibility:visible;
     font-size:2em;
+    pointer-events:none;
 }
 .terminal-focused .click-me {
     visibility:hidden;
