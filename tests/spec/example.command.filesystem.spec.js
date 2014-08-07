@@ -71,8 +71,8 @@
         });
 
         it('Can detect directories in a path', function () {
-            expect(pathTools.isFileOfPath("\\", "\\path1\\path2\\_dir")).toEqual(false);
-            expect(pathTools.isFileOfPath("\\", "\\path1\\_dir")).toEqual(true);
+            expect(pathTools.isDirectoryOfPath("\\", "\\path1\\path2\\_dir")).toEqual(false);
+            expect(pathTools.isDirectoryOfPath("\\", "\\path1\\_dir")).toEqual(true);
             expect(pathTools.isDirectoryOfPath("\\", "\\_dir")).toEqual(false);
             expect(pathTools.isDirectoryOfPath("\\", "\\path\\_dir")).toEqual(true);
             expect(pathTools.isDirectoryOfPath("\\path", "\\path\\file")).toEqual(false);
