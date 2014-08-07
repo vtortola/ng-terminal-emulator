@@ -59,6 +59,8 @@
         });
 
         it('Can detect files in a path', function () {
+            expect(pathTools.isFileOfPath("\\", "\\path1\\path2\\_dir")).toEqual(false);
+            expect(pathTools.isFileOfPath("\\", "\\path1\\_dir")).toEqual(true);
             expect(pathTools.isFileOfPath("\\", "\\_dir")).toEqual(false);
             expect(pathTools.isFileOfPath("\\", "\\file")).toEqual(true);
             expect(pathTools.isFileOfPath("\\path", "\\path\\file")).toEqual(true);
