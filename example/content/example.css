@@ -80,6 +80,9 @@ body {
     font-family: Helvetica;
     color: #FFF;
 }
+.instructions b {
+    font-family:Consolas;
+}
 .instructions pre {
     margin-left:20px;
 } 
@@ -95,7 +98,8 @@ body {
     font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;
     top: -60px;
     left: 350px;
-    color: #fff;
+    color: yellow;
+    text-shadow:3px 3px 4px #000;
     visibility:visible;
     font-size:2em;
 }
