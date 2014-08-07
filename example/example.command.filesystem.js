@@ -99,7 +99,7 @@
 				if (sp.length> 5) {
 				    var sp2 = sp.substr(0, sp.length - 5);
                     			if(sp2 + "\\_dir" === sp)
-					    return !!sp && sp.indexOf(config.directorySeparator) == -1;
+					    return !!sp && sp.indexOf(config.directorySeparator) == sp.lastIndexOf(config.directorySeparator);
 				}
 			}
 			return false
