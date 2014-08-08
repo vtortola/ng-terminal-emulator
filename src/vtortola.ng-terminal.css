@@ -30,15 +30,13 @@
     vertical-align:bottom;
     opacity:0;
     color:transparent;
-    height:0px;
-    width:0px;
+    height:1px;
+    width:1px;
 }
-/*it has to be at least 1x1px to invoke the mobile keyboard*/
-@media only screen and (max-device-width: 480px) {
-    .terminal-target{
-        height:1px;
-        width:1px;
-    }
+
+.damn-ie .terminal-target{
+    height:0;
+    width:0;
 }
 
 .terminal-viewport {
