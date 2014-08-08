@@ -86,7 +86,7 @@ body {
 }
 .instructions h3 {
     color:yellow;
-    font-family:Consolas;
+    font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;
 }
 .instructions pre {
     margin-left:20px;
