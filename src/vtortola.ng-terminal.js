@@ -266,7 +266,7 @@
             var cursor = angular.element(element[0].querySelector('.terminal-cursor'));
             var consoleInput = angular.element(element[0].querySelector('.terminal-input'));
             
-            if(navigator.appVersion.indexOf("MSIE") != -1){
+            if(navigator.appVersion.indexOf("Trident") != -1){
                 element.addClass('damn-ie');
             }
             
@@ -279,13 +279,22 @@
                     cursor.addClass('terminal-cursor-hidden');
             }, 500);
 
+            var mouseover = false;
+            element.on('mouseover', function () {
+                mouseover = true;
+            });
+            element.on('mouseleave', function () {
+                mouseover = false;
+            });
+
             consoleView.on('click', function () {
                 target[0].focus();
                 element.toggleClass('terminal-focused', true);
             });
 
             target.on("blur", function (e) {
-                element.toggleClass('terminal-focused', false);
+                if(!mouseover)
+                    element.toggleClass('terminal-focused', false);
             });
 
             target.on("keypress", function (e) {
