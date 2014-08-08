@@ -81,7 +81,7 @@ body {
     color: #FFF;
 }
 .instructions b {
-    font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;
+    font-family: Consolas;
     color:yellow;
 }
 .instructions h3 {
