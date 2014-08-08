@@ -142,6 +142,9 @@
 		var me = {};
 		var _currentPath = config.directorySeparator;
 
+		if (!storage.getItem(config.directorySeparator + "_dir"))
+		    storage.setItem(config.directorySeparator + "_dir", "_dir");
+
 		me.path = function (path) {
 
 			if (path == "..") {
@@ -211,23 +214,26 @@
 		};
 
 		me.removeDir = function (path) {
-
+		    console.log("Remove dir: " + path + " on: " + _currentPath);
 		    if (!pathTools.isDirNameValid(path))
 		        throw new Error("The directory name is not valid");
 
 		    if (me.existsDir(path, true)) {
 		        var dirkey = pathTools.combine(_currentPath, path, "_dir");
-				path = pathTools.combine(_currentPath, path);
+		        path = pathTools.combine(_currentPath, path);
+		        console.log("Full path: " + path);
 				var keys = [];
 				for (var key in storage) {
 
-				    if (key.length >= _currentPath.length) {
-				        var s = key.substr(0, _currentPath.length);
-				        if (s === _currentPath) {
+				    if (key.length >= path.length) {
+				        var s = key.substr(0, path.length);
+				        if (s === path) {
 				            keys.push(key);
-				            console.log(key);
+				            console.log("Remove: "+key);
+				            continue;
 				        }
 				    }
+				    console.log("Skip: " + key);
 				}
 				storage.removeItem(dirkey)
 				for (var i = 0; i < keys.length; i++) {

@@ -268,6 +268,29 @@
                 }
                 expect(counter).toEqual(0);
             });
+
+            it('Can remove directory with subdirectories and preserve parent structure', function () {
+
+                fs.createDir("myDir");
+                fs.path("myDir");
+                fs.writeFile("file.txt", "test");
+                fs.createDir("myDir2");
+                fs.path("myDir2");
+                fs.writeFile("file.txt", "test");
+                fs.createDir("myDir3");
+                fs.path("myDir3");
+                fs.writeFile("file.txt", "test");
+                fs.path("..");
+                fs.path("..");
+                
+                broker.execute(session, "rmdir myDir2");
+
+                var counter = 0;
+                for (var key in testStorage) {
+                    counter++;
+                }
+                expect(counter).toEqual(2);
+            });
         });
 
         describe('cd', function () {
