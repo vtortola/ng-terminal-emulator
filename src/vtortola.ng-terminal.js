@@ -266,7 +266,7 @@
             var cursor = angular.element(element[0].querySelector('.terminal-cursor'));
             var consoleInput = angular.element(element[0].querySelector('.terminal-input'));
             
-            if(navigator.appVersion.indexOf("MSIE")){
+            if(navigator.appVersion.indexOf("MSIE") != -1){
                 element.addClass('damn-ie');
             }
             
