@@ -87,6 +87,7 @@ body {
 .instructions h3 {
     color:yellow;
     font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;
+    font-size:1.5em;
 }
 .instructions pre {
     margin-left:20px;
@@ -167,7 +168,7 @@ body {
     .terminal-line{
         white-space:normal;
     }
-    .instructions b {
+    .instructions h3 {
         font-family: Consolas;
         margin:1px;
         padding:0;
