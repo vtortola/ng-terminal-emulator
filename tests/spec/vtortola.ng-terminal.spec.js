@@ -55,6 +55,16 @@
                 scope.previousCommand();
                 expect(scope.commandLine).toEqual("RRR");
             });
+            it('Can skip empty commands', function () {
+                scope.keypress(82);
+                scope.keypress(82);
+                scope.keypress(82);
+                scope.execute();
+                scope.execute();
+                expect(scope.commandLine).toEqual("");
+                scope.previousCommand();
+                expect(scope.commandLine).toEqual("RRR");
+            });
             it('Can go forward in command history', function () {
                 scope.keypress(82);
                 scope.keypress(82);

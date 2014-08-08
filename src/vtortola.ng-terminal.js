@@ -230,6 +230,9 @@
 
         $scope.commandLine = '';
 
+        if (!command)
+            return;
+
         if (commandHistory.length > 10) {
             commandHistory.splice(0, 1);
         }
