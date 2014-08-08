@@ -116,7 +116,7 @@ body {
 }
 
 .terminal-focused .terminal{
-    box-shadow: 0 0 20px rgba(217, 215, 255, 0.85) inset, 0px 0px 16px rgba(255, 255, 0, 0.5);
+    box-shadow: 0 0 20px rgba(217, 215, 255, 0.85) inset, 0px 0px 2px #000, 0px 0px 16px rgba(255, 255, 0, 0.5);
 }
 
 @media only screen and (max-device-width: 480px) {

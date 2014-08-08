@@ -43,6 +43,14 @@
         $scope.$apply();
     }, 100);
 
+    $scope.gitHub = function () {
+        $ga('send', 'event', 'ng-terminal-emulator', 'click', 'GitHub');
+    };
+
+    $scope.unitTests = function () {
+        $ga('send', 'event', 'ng-terminal-emulator', 'click', 'UnitTest');
+    };
+
     $scope.session = {
         commands: [],
         output: [],
