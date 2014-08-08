@@ -266,6 +266,10 @@
             var cursor = angular.element(element[0].querySelector('.terminal-cursor'));
             var consoleInput = angular.element(element[0].querySelector('.terminal-input'));
             
+            if(navigator.appVersion.indexOf("MSIE")){
+                element.addClass('damn-ie');
+            }
+            
             setInterval(function () {
                 var focused = $document[0].activeElement == target[0];
                 if (focused) {
