@@ -93,10 +93,10 @@
         }
 
         me.reset = function () {
-            _user = config && config.user ? config.user : 'anon';
-            _path = config && config.path ? config.path : '\\';
-            _userPathSeparator = config && config.separator ? config.separator : '@';
-            _promptEnd = config && config.end ? config.end : ':>';
+            _user = config && config.user!=null ? (config.user||'') : 'anon';
+            _path = config && config.path!=null ? (config.path||'') : '\\';
+            _userPathSeparator = config && config.separator!=null ? (config.separator||'') : '@';
+            _promptEnd = config && config.end!=null ? (config.end||'') : ':>';
             build();
         };
 
