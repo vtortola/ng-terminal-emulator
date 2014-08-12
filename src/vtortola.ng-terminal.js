@@ -262,6 +262,7 @@
         template: "<section class='terminal' ng-paste='handlePaste($event)'><div class='terminal-viewport'><div class='terminal-results'></div><span class='terminal-prompt' ng-show='showPrompt'>{{prompt.text}}</span><span class='terminal-input'>{{commandLine}}</span><span class='terminal-cursor'>_</span><input type='text' ng-model='commandLine' class='terminal-target'/></div><div ng-transclude></div></section>",
         link: function (scope, element, attrs, controller) {
             
+            var terminal = angular.element(element[0].querySelector('.terminal'));
             var target = angular.element(element[0].querySelector('.terminal-target'));
             var consoleView = angular.element(element[0].querySelector('.terminal-viewport'));
             var results = angular.element(element[0].querySelector('.terminal-results'));
@@ -270,7 +271,12 @@
             var consoleInput = angular.element(element[0].querySelector('.terminal-input'));
             
             if(navigator.appVersion.indexOf("Trident") != -1){
-                element.addClass('damn-ie');
+                terminal.addClass('damn-ie');
+            }
+
+            var css = attrs['terminalClass'];
+            if (css) {
+                terminal.addClass(css);
             }
             
             setInterval(function () {
@@ -346,7 +352,7 @@
                 }, 10);
             }
 
-            scope.$watchCollection('results', function (newValues, oldValues) {
+            scope.$watchCollection(function () { return scope.results; }, function (newValues, oldValues) {
                 
                 if (oldValues.length && !newValues.length) { // removal detected
                     var children = results.children();
