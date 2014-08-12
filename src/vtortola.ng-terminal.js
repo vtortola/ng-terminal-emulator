@@ -59,7 +59,8 @@
                 },
                 getPromptConfiguration: function () {
                     return me.promptConfiguration;
-                }
+                },
+                outputDelay : 10
             };
         }];
 
@@ -133,6 +134,8 @@
 
     var commandHistory = [];
     var commandIndex = -1;
+
+    $scope.outputDelay = terminalConfiguration.outputDelay;
 
     terminalConfiguration.getTypeEffect().then(function (effect) {
         $scope.typeSound = effect;
@@ -349,7 +352,7 @@
                     }
                     else if (endCallback)
                         endCallback();
-                }, 10);
+                }, scope.outputDelay);
             }
 
             scope.$watchCollection(function () { return scope.results; }, function (newValues, oldValues) {
@@ -369,41 +372,58 @@
                 }];
 
                 for (var j = 0; j < newValues.length; j++) {
-                    
+
                     var newValue = newValues[j];
                     if (newValue.displayed)
                         continue;
 
                     newValue.displayed = true;
 
-                    for (var i = newValue.text.length-1; i >= 0; i--) {
-                        var line = document.createElement('pre');
-                        line.className = 'terminal-line';
-                        var textLine = newValue.text[i];
-                        
-                        if (newValue.output) {
-                            line.textContent = '  ';
-                            var fi = f.length - 1;
-                            var wrapper = function () {
-                                var wline = line;
-                                var wtextLine = textLine;
-                                var wf = f[fi];
-                                var wbreak = i == newValue.text.length -1 && newValue.breakLine;
-                                f.push(function () {
-                                    results[0].appendChild(wline); type(wline, wtextLine, 0, wf);
-                                    consoleView[0].scrollTop = consoleView[0].scrollHeight;
-                                    if (wbreak) {
-                                        var breakLine = document.createElement('br');
-                                        results[0].appendChild(breakLine);
-                                    }
-                                });
-                            }();
+                    if (scope.outputDelay) {
+
+                        for (var i = newValue.text.length - 1; i >= 0; i--) {
+                            var line = document.createElement('pre');
+                            line.className = 'terminal-line';
+
+                            var textLine = newValue.text[i];
+
+                            if (scope.outputDelay && newValue.output) {
+                                line.textContent = '  ';
+                                var fi = f.length - 1;
+                                var wrapper = function () {
+                                    var wline = line;
+                                    var wtextLine = textLine;
+                                    var wf = f[fi];
+                                    var wbreak = i == newValue.text.length - 1 && newValue.breakLine;
+                                    f.push(function () {
+                                        results[0].appendChild(wline); type(wline, wtextLine, 0, wf);
+                                        consoleView[0].scrollTop = consoleView[0].scrollHeight;
+                                        if (wbreak) {
+                                            var breakLine = document.createElement('br');
+                                            results[0].appendChild(breakLine);
+                                        }
+                                    });
+                                }();
+                            }
+                            else {
+                                line.textContent = textLine;
+                                results[0].appendChild(line)
+                            }
+
                         }
-                        else {
-                            line.textContent = textLine;
+                    }
+                    else {
+                        for (var i = 0; i < newValue.text.length; i++) {
+                            var line = document.createElement('pre');
+                            line.textContent = newValue.output?'  ':'';
+                            line.className = 'terminal-line';
+                            line.textContent += newValue.text[i];
                             results[0].appendChild(line)
                         }
-                        
+                        if (!!newValue.breakLine) {
+                            var breakLine = document.createElement('br');
+                            results[0].appendChild(breakLine);
+                        }
                     }
                     
                 }
