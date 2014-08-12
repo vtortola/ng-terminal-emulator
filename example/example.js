@@ -29,7 +29,9 @@
 
     return provider();
 })
-.controller('console',['$scope','$ga','commandBroker', function ($scope, $ga, commandBroker) {
+.controller('console',['$scope','$ga','commandBroker','$rootScope', function ($scope, $ga, commandBroker, $rootScope) {
+
+    $rootScope.theme = 'vintage';
 
     setTimeout(function () {
         $scope.$broadcast('terminal-output', {
@@ -102,8 +104,9 @@
 
 .config(['terminalConfigurationProvider', function (terminalConfigurationProvider) {
 
-    terminalConfigurationProvider.setTypeSoundUrl('example/content/type.wav');
-    terminalConfigurationProvider.setStartSoundUrl('example/content/start.wav');
+    terminalConfigurationProvider.config('vintage').outputDelay = 10;
+    terminalConfigurationProvider.config('vintage').typeSoundUrl ='example/content/type.wav';
+    terminalConfigurationProvider.config('vintage').startSoundUrl ='example/content/start.wav';
 }])
 
 ;

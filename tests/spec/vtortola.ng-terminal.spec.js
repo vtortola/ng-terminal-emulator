@@ -129,8 +129,8 @@
 
     describe('Service: prompt', function () {
         var prompt = null;
-        beforeEach(inject(['prompt', function (p) {
-            prompt = p;
+        beforeEach(inject(['promptCreator', function (p) {
+            prompt = p();
         }]));
 
         it('Default prompt', function () {

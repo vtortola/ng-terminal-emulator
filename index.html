@@ -32,16 +32,20 @@
                         GitHub
                     </a>
                 </section>
-                <div ng-controller="console">
-                    <terminal terminal-class="vintage-terminal">
+                <div class="console-options">
+                    <label><input type="radio" ng-model="theme" name="theme" value="vintage">Vintage</label>
+                    <label><input type="radio" ng-model="theme" name="theme" value="modern">Modern</label>
+                </div>
+                <div ng-controller="console" ng-show="theme == 'vintage'">
+                    <terminal terminal-class="vintage-terminal" terminal-config="vintage">
                         <p class="click-me">Click me to start commanding !</p>
                     </terminal>
                 </div>
-                <!--<div ng-controller="console">
+                <div ng-controller="console" ng-show="theme == 'modern'">
                     <terminal>
                         <p class="click-me">Click me to start commanding !</p>
                     </terminal>
-                </div>-->
+                </div>
                 <a class="unit-tests" href="tests" ng-click="unitTests()">Unit tests</a>
                 
             </section>

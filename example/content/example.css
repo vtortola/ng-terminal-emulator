@@ -100,6 +100,10 @@ body {
     font-size:2em;
     color:yellow;
 }
+.console-options{
+    font-family:Consolas;
+    margin:0 10px 10px 10px;
+}
 .click-me {
     position: relative;
     font-family: 'Architects Daughter', 'Helvetica Neue', Helvetica, Arial, serif;
@@ -115,8 +119,19 @@ body {
     visibility:hidden;
 }
 
-.terminal-focused .terminal{
+.terminal{
+    border:1px solid transparent;
+}
+.vintage-terminal.terminal {
+    border:none;
+}
+.terminal-focused.terminal{
+    border:1px solid rgba(255, 255, 0, 0.5);
+}
+
+.terminal-focused.vintage-terminal.terminal{
     box-shadow: 0 0 20px rgba(217, 215, 255, 0.85) inset, 0px 0px 2px #000, 0px 0px 16px rgba(255, 255, 0, 0.5);
+    border:none;
 }
 
 @media only screen and (max-device-width: 480px) {
@@ -158,7 +173,7 @@ body {
     }
     .terminal{
         margin-top:5px;
-        height:400px;
+        height:360px;
     }
     .click-me {
         left:20px;
