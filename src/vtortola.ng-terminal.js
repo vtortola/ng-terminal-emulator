@@ -11,6 +11,7 @@
         me.getTypeEffect = null;
         me.getStartEffect = null;
         me.outputDelay = 0;
+        me.allowTypingWriteDisplaying = true;
 
         return me;
     };
@@ -139,7 +140,7 @@
         var config = terminalConfiguration(configName);
         $scope.prompt = promptCreator(config);
         $scope.outputDelay = config.outputDelay;
-
+        $scope.allowTypingWriteDisplaying = config.allowTypingWriteDisplaying;
         if (config.getTypeEffect) {
             config.getTypeEffect.then(function (effect) {
                 $scope.typeSound = effect;
@@ -330,7 +331,7 @@
                         });
 
                         target.on("keypress", function (e) {
-                            if (scope.showPrompt)
+                            if(scope.showPrompt || scope.allowTypingWriteDisplaying)
                                 scope.keypress(e.which);
                             e.preventDefault();
                         });
@@ -341,18 +342,22 @@
                                 e.preventDefault();
                             }
                             if (e.keyCode == 8) {
-                                scope.backspace();
+                                if (scope.showPrompt || scope.allowTypingWriteDisplaying)
+                                    scope.backspace();
                                 e.preventDefault();
                             }
                             else if (e.keyCode == 13) {
-                                scope.execute();
+                                if (scope.showPrompt || scope.allowTypingWriteDisplaying)
+                                    scope.execute();
                             }
                             else if (e.keyCode == 38) {
-                                scope.previousCommand();
+                                if (scope.showPrompt || scope.allowTypingWriteDisplaying)
+                                    scope.previousCommand();
                                 e.preventDefault();
                             }
                             else if (e.keyCode == 40) {
-                                scope.nextCommand();
+                                if (scope.showPrompt || scope.allowTypingWriteDisplaying)
+                                    scope.nextCommand();
                                 e.preventDefault();
                             }
                         });

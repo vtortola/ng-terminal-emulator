@@ -105,6 +105,7 @@
 .config(['terminalConfigurationProvider', function (terminalConfigurationProvider) {
 
     terminalConfigurationProvider.config('vintage').outputDelay = 10;
+    terminalConfigurationProvider.config('vintage').allowTypingWriteDisplaying = false;
     terminalConfigurationProvider.config('vintage').typeSoundUrl ='example/content/type.wav';
     terminalConfigurationProvider.config('vintage').startSoundUrl ='example/content/start.wav';
 }])
