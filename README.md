@@ -93,3 +93,9 @@ And apply that configuration using the `terminal-config` attribute in the direct
 </terminal>
 ```
 
+
+## Example
+
+Take a look on the [Terminal Server](//github.com/vtortola/WebSocketListener/wiki/WebSocketListener-Terminal-Server) application done with [WebSocketListener](http://vtortola.github.io/WebSocketListener/).
+
+![](http://vtortola.github.io/ng-terminal-emulator/example/content/terminalservercapture.png)
