@@ -27,7 +27,7 @@ The directive can transclude, so whatever content you put inside, will be shown 
 </div>
 ```
 
-In order to input and output text, you must communicate using `.$broadcast()`and `.$emit()`
+In order to input and output text, you must communicate using `.$broadcast()`and `.$emit()` from the wrapper controller.
 
 ### Send output to terminal
 ```
