@@ -198,4 +198,7 @@ a{
         font-size:1.2em;
         font-weight:normal;
     }
+    #terminal-server-preview{
+        display:none;
+    }
 }
