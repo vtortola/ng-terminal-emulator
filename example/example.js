@@ -59,7 +59,7 @@
         $scope:$scope
     };
 
-    $scope.$watchCollection('session.commands', function (n) {
+    $scope.$watchCollection(function () { return $scope.session.commands; }, function (n) {
         for (var i = 0; i < n.length; i++) {
             $ga('send', 'event', 'Console', 'Command', JSON.stringify(n[i]));
             $scope.$broadcast('terminal-command', n[i]);
@@ -68,7 +68,7 @@
         $scope.$$phase || $scope.$apply();
     });
 
-    $scope.$watchCollection('session.output', function (n) {
+    $scope.$watchCollection(function () { return $scope.session.output; }, function (n) {
         for (var i = 0; i < n.length; i++) {
             $ga('send', 'event', 'Console', 'Output', JSON.stringify(n[i]));
             $scope.$broadcast('terminal-output', n[i]);
