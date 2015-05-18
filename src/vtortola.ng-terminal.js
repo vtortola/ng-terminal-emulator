@@ -438,6 +438,8 @@
                                         var line = document.createElement('pre');
                                         line.textContent = newValue.output?'  ':'';
                                         line.className = 'terminal-line';
+                                        if (newValue.className)
+                                            line.className += " " + newValue.className;
                                         line.textContent += newValue.text[i];
                                         results[0].appendChild(line)
                                     }
