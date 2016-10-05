@@ -12,6 +12,7 @@
         me.getStartEffect = null;
         me.outputDelay = 0;
         me.allowTypingWriteDisplaying = true;
+        me.maxLineLength = 80;
 
         return me;
     };
@@ -203,7 +204,8 @@
     });
        
     $scope.keypress= function (keyCode) {
-        if ($scope.commandLine.length < 80) {
+    	var config = terminalConfiguration($scope.configName);
+        if ($scope.commandLine.length < config.maxLineLength) {
             commandIndex = -1;
             $scope.commandLine += String.fromCharCode(keyCode);
             $scope.$$phase || $scope.$apply();
