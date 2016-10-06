@@ -436,7 +436,6 @@
                                 else {
                                     for (var i = 0; i < newValue.text.length; i++) {
                                         var line = document.createElement('pre');
-                                        line.textContent = newValue.output?'  ':'';
                                         line.className = 'terminal-line';
                                         line.textContent += newValue.text[i];
                                         results[0].appendChild(line)
